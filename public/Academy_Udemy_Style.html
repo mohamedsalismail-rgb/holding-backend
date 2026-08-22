@@ -106,11 +106,10 @@ const COURSES = [
 ];
 
 // ===================== إعداد الاتصال =====================
-// نقطة الربط المستقبلية — مهيأة في الكود وغير مفعّلة بعد (لا تُستدعى ما لم تُضبط USE_EXTERNAL_AGENT على true).
-const EXTERNAL_BACKEND_URL = "https://holding-backend.onrender.com/api/agent";
-const USE_EXTERNAL_AGENT   = false;
-// مسار الخادم المرافق لهذه الصفحة (server.js في نفس المستودع) — يُجرَّب أولاً، ثم يعود الاتصال المباشر كخيار احتياطي.
-const SAME_ORIGIN_ENDPOINT = "/api/command";
+// نقطة الاتصال الحية بنواة Claude — عبر خادم هذا الموقع نفسه (server.js).
+// المفتاح ANTHROPIC_API_KEY يبقى على الخادم ولا يصل المتصفح إطلاقاً.
+// لتحويل الاتصال إلى خادم آخر، غيّر هذه القيمة إلى عنوانه الكامل لا أكثر.
+const AGENT_ENDPOINT = "/api/command";
 
 const TUTOR_SYSTEM_PROMPT = `أنت مساعد تعلّم ذكي داخل منصة "أكاديمية المجموعة" التدريبية.
 مبادئ ملزمة:
@@ -274,7 +273,7 @@ function coursePlayerHTML(course){
         <div id="pane-assistant" class="hidden">
           <div class="flex flex-col gap-3">
             <p class="text-[10px] rounded-lg px-3 py-2" style="color:#8710D8; background:#F6E8FE; border:1px solid #E4C6F9;">
-يُجرَّب أولاً خادم هذه الصفحة <span dir="ltr">/api/command</span>، وعند تعذّره يعود الاتصال المباشر. نقطة <span dir="ltr">/api/agent</span> مهيأة في الكود وغير مفعّلة بعد.
+المساعد متصل مباشرة بنواة Claude عبر خادم هذه الصفحة <span dir="ltr">/api/command</span>. الردود توضيحية تعليمية ولا تُسجّل تقدّماً ولا تمنح شهادة.
             </p>
             <textarea id="assistantInput" rows="3" placeholder="اسأل المساعد عن محتوى هذا الدرس..."
               class="w-full text-xs rounded-md p-2.5 focus:outline-none" style="border:1px solid var(--border);"></textarea>
@@ -409,31 +408,25 @@ async function askAssistant(){
   } finally { btn.disabled = false; }
 }
 
-// يحاول خادم نفس النطاق أولاً (server.js)، ثم يعود إلى الاتصال المباشر.
+// اتصال حيّ بنواة Claude عبر {AGENT_ENDPOINT}. لا يوجد وضع تجريبي ولا اتصال مباشر من المتصفح:
+// أي خلل يظهر كما يرده الخادم بالضبط، حتى لا يُخفى سبب العطل خلف رسالة عامة.
 async function callTutor(systemPrompt, question){
-  const endpoint = USE_EXTERNAL_AGENT ? EXTERNAL_BACKEND_URL : SAME_ORIGIN_ENDPOINT;
+  let r;
   try{
-    const r = await fetch(endpoint, {
+    r = await fetch(AGENT_ENDPOINT, {
       method:"POST", headers:{"Content-Type":"application/json"},
       body: JSON.stringify({ agent:"مساعد تعلّم — أكاديمية المجموعة", system: systemPrompt, command: question })
     });
-    if(r.ok){
-      const d = await r.json();
-      if(d.output) return d.output;
-    }
-  } catch(e){ /* لا خادم متاح — تابع إلى الاتصال المباشر */ }
+  } catch(e){
+    throw new Error("تعذّر الوصول إلى الخادم — تحقّق من أن الخدمة تعمل.");
+  }
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      model:"claude-opus-5", max_tokens:4000,
-      system: systemPrompt,
-      messages:[{role:"user", content:question}]
-    })
-  });
-  const data = await response.json();
-  if(data.error) throw new Error(data.error.message || 'تعذر الاتصال');
-  return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+  let data = {};
+  try{ data = await r.json(); } catch(e){ /* رد غير JSON */ }
+
+  if(!r.ok) throw new Error(data.error || `الخادم أعاد الحالة ${r.status}.`);
+  if(!data.output) throw new Error("جاء رد فارغ من الخادم.");
+  return data.output;
 }
 </script>
 </body>

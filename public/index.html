@@ -280,7 +280,7 @@ body{ background:var(--bg-app); color:var(--text-1); font-family:'IBM Plex Sans 
         </div>
 
         <p id="backendNotice" class="text-[10px] rounded-lg px-3 py-2 mb-5" style="color:#c98003; background:rgba(194,120,3,.08); border:1px solid rgba(194,120,3,.25);">
-          نقطة الربط الخارجية <span class="font-num" dir="ltr">holding-backend.onrender.com</span> حيّة لكن بلا API فعلي بعد لاستقبال التوصيات — الاتصال أدناه يعمل تلقائياً فقط داخل بيئة Claude.ai مباشرة.
+          الوكلاء متصلون مباشرة بنواة Claude عبر خادم هذه البوابة <span class="font-num" dir="ltr">/api/command</span>. كل مخرجاتهم توصيات مقترحة تتطلب قرارك — لا تنفيذ آلي.
         </p>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -352,11 +352,10 @@ const now = new Date();
 document.getElementById('todayDate').textContent = `${now.getDate()} ${arMonths[now.getMonth()]} ${now.getFullYear()}`;
 
 // ===== إعداد نقاط الاتصال =====
-// نقطة الربط المستقبلية — مهيأة في الكود وغير مفعّلة بعد (لا تُستدعى ما لم تُضبط USE_EXTERNAL_AGENT على true).
-const EXTERNAL_BACKEND_URL = "https://holding-backend.onrender.com/api/agent";
-const USE_EXTERNAL_AGENT   = false;
-// مسار الخادم المرافق لهذه الصفحة (server.js في نفس المستودع) — يُجرَّب أولاً، ثم يعود الاتصال المباشر كخيار احتياطي.
-const SAME_ORIGIN_ENDPOINT = "/api/command";
+// نقطة الاتصال الحية بنواة Claude — عبر خادم هذا الموقع نفسه (server.js).
+// المفتاح ANTHROPIC_API_KEY يبقى على الخادم ولا يصل المتصفح إطلاقاً.
+// لتحويل الاتصال إلى خادم آخر، غيّر هذه القيمة إلى عنوانه الكامل لا أكثر.
+const AGENT_ENDPOINT = "/api/command";
 
 // ===== تبديل العروض الرئيسية (Rail) =====
 const MAIN_VIEWS = ['dashboard','agents','reconciliation'];
@@ -502,7 +501,7 @@ const DASHBOARD_CONTEXT = `
 4) الحلول والتكنولوجيا: إنجاز المشروعات، الاستقرار السحابي، الأتمتة.
 5) الحلول المحاسبية (مستقبلاً): قيد التأسيس.
 البند الحرج الحالي: أزمة سيولة — الدخل الوظيفي هو المصدر الوحيد، وموازنة الاستثمار مجمّدة.
-ملاحظة: خادم خارجي (holding-backend.onrender.com) حيّ لكن بلا API فعلي لاستقبال توصيات بعد — لا تفترض وجود اتصال خلفي غير مؤكد.
+ملاحظة: أنت تعمل عبر خادم البوابة نفسه (نقطة /api/command)، وهو الاتصال الوحيد المعتمد. لا تفترض وجود أي تكامل أو نظام خلفي آخر لم يُذكر هنا صراحة.
 ملاحظة إلزامية: أي "أتمتة" أو "إجراء تلقائي" يُقرأ دائماً كمقترح/مسودة تتطلب اعتماد الرئيس.`;
 
 const GOVERNANCE_CORE = `أنت أحد الوكلاء الاستشاريين ضمن نظام حوكمة "المجموعة القابضة"، وتخاطب مباشرة رئيس مجلس الإدارة (المالك الوحيد وصاحب القرار الوحيد).
@@ -518,7 +517,7 @@ const AGENT_PROMPTS = {
   strategy: GOVERNANCE_CORE + `\n\nهويتك: الوكيل الاستراتيجي والحوكمة (CSO). فحص الاتساق الاستراتيجي عبر الأذرع ومطابقة أي طلب مع قرارات المجلس.`,
   cfo: GOVERNANCE_CORE + `\n\nهويتك: المدير المالي للمجموعة (CFO). تحليل السيولة وتخصيص رأس المال ومراجعة مخرجات وكيل التسعير قبل اعتبارها قابلة للتطبيق.`,
   coo: GOVERNANCE_CORE + `\n\nهويتك: مدير العمليات والخدمات المشتركة (COO). تشغيل نموذج الخدمات المشتركة بلا بنية تحتية أو توظيف جديد.`,
-  cto: GOVERNANCE_CORE + `\n\nهويتك: المهندس التقني وأنظمة المجموعة (CTO). حلول Python + Excel فقط، بلا تكلفة بنية تحتية جديدة. راجع أي طلب ربط بخادم خارجي (مثل holding-backend.onrender.com) بحذر ولا تفترض جاهزيته.`,
+  cto: GOVERNANCE_CORE + `\n\nهويتك: المهندس التقني وأنظمة المجموعة (CTO). حلول Python + Excel فقط، بلا تكلفة بنية تحتية جديدة. الاتصال بنواة Claude قائم عبر خادم البوابة نفسه؛ راجع أي طلب ربط بخدمة خارجية أخرى بحذر ولا تفترض جاهزيتها.`,
   curriculum: GOVERNANCE_CORE + `\n\nهويتك: وكيل تطوير الحقائب والمناهج الذكية. كل مخرجاتك مسودة فقط.`,
   pricing: GOVERNANCE_CORE + `\n\nهويتك: وكيل تحليل التكاليف والتسعير (DEC-2026-TRN-001). مقترح تسعير فقط، لا تطبيق فعلي إلا باعتماد CFO والرئيس.`,
   brand: GOVERNANCE_CORE + `\n\nهويتك: وكيل الهوية والتصميم المؤسسي (DEC-2026-TRN-002). مسودة دليل هوية تتطلب اعتماداً رسمياً.`,
@@ -561,27 +560,25 @@ async function sendCommand(){
   } finally { sendBtn.disabled = false; }
 }
 
-// يحاول خادم نفس النطاق أولاً (server.js)، ثم يعود إلى الاتصال المباشر.
+// اتصال حيّ بنواة Claude عبر {AGENT_ENDPOINT}. لا يوجد وضع تجريبي ولا اتصال مباشر من المتصفح:
+// أي خلل يظهر كما يرده الخادم بالضبط، حتى لا يُخفى سبب العطل خلف رسالة عامة.
 async function callAgent(systemPrompt, command){
-  const endpoint = USE_EXTERNAL_AGENT ? EXTERNAL_BACKEND_URL : SAME_ORIGIN_ENDPOINT;
+  let r;
   try{
-    const r = await fetch(endpoint, {
+    r = await fetch(AGENT_ENDPOINT, {
       method:"POST", headers:{"Content-Type":"application/json"},
       body: JSON.stringify({ agent:"وكيل حوكمة — البوابة التنفيذية", system: systemPrompt, command: command })
     });
-    if(r.ok){
-      const d = await r.json();
-      if(d.output) return d.output;
-    }
-  } catch(e){ /* لا خادم متاح — تابع إلى الاتصال المباشر */ }
+  } catch(e){
+    throw new Error("تعذّر الوصول إلى الخادم — تحقّق من أن الخدمة تعمل.");
+  }
 
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ model:"claude-opus-5", max_tokens:4000, system: systemPrompt, messages:[{role:"user", content: command}] })
-  });
-  const data = await response.json();
-  if(data.error) throw new Error(data.error.message || 'تعذر الاتصال');
-  return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+  let data = {};
+  try{ data = await r.json(); } catch(e){ /* رد غير JSON */ }
+
+  if(!r.ok) throw new Error(data.error || `الخادم أعاد الحالة ${r.status}.`);
+  if(!data.output) throw new Error("جاء رد فارغ من الخادم.");
+  return data.output;
 }
 
 function addPendingDecision(agentLabel, command, response){
