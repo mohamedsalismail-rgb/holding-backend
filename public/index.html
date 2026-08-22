@@ -560,7 +560,7 @@ async function sendCommand(){
   } finally { sendBtn.disabled = false; }
 }
 
-// اتصال حيّ بنواة Claude عبر {AGENT_ENDPOINT}. لا يوجد وضع تجريبي ولا اتصال مباشر من المتصفح:
+// اتصال حيّ بنواة Claude عبر AGENT_ENDPOINT. لا يوجد وضع تجريبي ولا اتصال مباشر من المتصفح:
 // أي خلل يظهر كما يرده الخادم بالضبط، حتى لا يُخفى سبب العطل خلف رسالة عامة.
 async function callAgent(systemPrompt, command){
   let r;
