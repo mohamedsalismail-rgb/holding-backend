@@ -4,11 +4,16 @@
   "description": "Backend Server for Group Command Portal",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build:css": "tailwindcss -i src/tailwind.css -o public/tailwind.css --minify",
+    "watch:css": "tailwindcss -i src/tailwind.css -o public/tailwind.css --watch"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",
     "cors": "^2.8.5",
     "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
   }
 }
