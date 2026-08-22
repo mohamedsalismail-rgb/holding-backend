@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منظومة الإدارة القابضة | Executive Portal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-app:#131722; --bg-panel:#1e222d; --border:#2a2e39;
+  --text-1:#d1d4dc; --text-2:#787b86;
+  --green:#089981; --red:#f23645; --blue:#2962ff;
+}
+body{ background:var(--bg-app); color:var(--text-1); font-family:'IBM Plex Sans Arabic',sans-serif; }
+.font-num{ font-family:'Plus Jakarta Sans',sans-serif; }
+.panel{ background:var(--bg-panel); border:1px solid var(--border); }
+.scrollbar::-webkit-scrollbar{ width:4px; }
+.scrollbar::-webkit-scrollbar-track{ background:transparent; }
+.scrollbar::-webkit-scrollbar-thumb{ background:#363a45; border-radius:4px; }
+.rail-btn{ transition:.15s; }
+.rail-btn.active{ background:rgba(41,98,255,.12); color:var(--blue); border-inline-start:2px solid var(--blue); }
+.rail-btn:not(.active):hover{ background:#2a2e39; color:var(--text-1); }
+.tab-btn.active{ background:var(--blue); color:#fff; }
+.tab-btn:not(.active){ color:var(--text-2); }
+.tab-btn:not(.active):hover{ background:#2a2e39; color:var(--text-1); }
+.academy-link{ transition:.15s; text-decoration:none; }
+.academy-link:hover{ background:#2a2e39; border-color:var(--blue) !important; color:#fff !important; }
+</style>
+</head>
+<body class="min-h-screen">
+
+  <!-- ===== Top Header ===== -->
+  <header class="h-14 flex items-center justify-between px-4 border-b" style="background:var(--bg-panel); border-color:var(--border);">
+    <div class="flex items-center gap-3">
+      <div class="w-7 h-7 rounded flex items-center justify-center font-bold text-white text-xs" style="background:var(--blue);">ق</div>
+      <div>
+        <p class="text-xs font-semibold" style="color:var(--text-1);">المجموعة القابضة</p>
+        <p class="text-[9px]" style="color:var(--text-2);">Executive Portal</p>
+      </div>
+    </div>
+
+    <div class="flex-1 max-w-md mx-6 relative">
+      <svg class="w-3.5 h-3.5 absolute top-1/2 -translate-y-1/2 right-3" style="color:var(--text-2);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10.5A6.5 6.5 0 114 10.5a6.5 6.5 0 0113 0z"/></svg>
+      <input id="quickSearch" oninput="filterLists()" placeholder="بحث سريع في المهام والقرارات..."
+        class="w-full text-xs rounded-md py-1.5 pr-9 pl-3 focus:outline-none"
+        style="background:var(--bg-app); border:1px solid var(--border); color:var(--text-1);">
+    </div>
+
+    <div class="flex items-center gap-3 shrink-0">
+      <a href="Academy_Udemy_Style.html" class="academy-link flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-md" style="border:1px solid var(--border); color:var(--text-1);" title="الانتقال إلى أكاديمية المجموعة">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+        <span class="hidden md:inline">أكاديمية المجموعة</span>
+      </a>
+      <div class="flex items-center gap-2 text-[10px] px-2.5 py-1 rounded-full" style="background:rgba(8,153,129,.1); border:1px solid rgba(8,153,129,.3); color:var(--green);">
+        <span class="w-1.5 h-1.5 rounded-full animate-pulse" style="background:var(--green);"></span>
+        <span id="todayDate" class="font-num"></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex" style="height:calc(100vh - 56px);">
+
+    <!-- ===== Icon Rail Sidebar ===== -->
+    <aside class="w-16 flex flex-col items-center py-4 gap-2 border-l shrink-0" style="background:var(--bg-panel); border-color:var(--border);">
+      <button onclick="switchMain('dashboard')" id="rail-dashboard" class="rail-btn active w-11 h-11 rounded-lg flex items-center justify-center" title="اللوحة الرئيسية">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      </button>
+      <button onclick="switchMain('agents')" id="rail-agents" class="rail-btn w-11 h-11 rounded-lg flex items-center justify-center" title="وكلاء الذكاء الاصطناعي" style="color:var(--text-2);">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      </button>
+      <button onclick="switchMain('reconciliation')" id="rail-reconciliation" class="rail-btn w-11 h-11 rounded-lg flex items-center justify-center" title="المطابقة المالية" style="color:var(--text-2);">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 6l3 1m0 0l-3 9a5 5 0 006 0l-3-9m0 0l3-1m6 1l3-1m-3 1l-3 9a5 5 0 006 0l-3-9m0 0l3 1M9 3v2m6-2v2M9 21h6"/></svg>
+      </button>
+      <div class="w-8 h-px my-1" style="background:var(--border);"></div>
+      <a href="Academy_Udemy_Style.html" class="rail-btn w-11 h-11 rounded-lg flex items-center justify-center" title="أكاديمية المجموعة" style="color:var(--text-2); text-decoration:none;">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0112 20.055a11.952 11.952 0 01-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+      </a>
+    </aside>
+
+    <!-- ===== Main Content ===== -->
+    <main class="flex-1 overflow-y-auto scrollbar p-6">
+
+      <!-- ===================== VIEW: DASHBOARD ===================== -->
+      <section id="view-dashboard">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h1 id="dashTitle" class="text-lg font-bold" style="color:var(--text-1);">نظرة عامة</h1>
+            <p id="dashSubtitle" class="text-[11px] mt-0.5" style="color:var(--text-2);">القرارات المفتوحة والمستندات المعتمدة عبر الأذرع الأربعة</p>
+          </div>
+          <button onclick="switchMain('agents')" class="text-xs font-semibold px-4 py-2 rounded-md text-white flex items-center gap-2" style="background:var(--blue);">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            إصدار قرار جديد
+          </button>
+        </div>
+
+        <!-- Arm Tabs -->
+        <div class="flex gap-1 mb-5 p-1 rounded-lg w-fit" style="background:var(--bg-panel); border:1px solid var(--border);">
+          <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn active text-[11px] font-medium px-3 py-1.5 rounded-md transition-all">نظرة عامة</button>
+          <button onclick="switchTab('realestate')" id="tab-realestate" class="tab-btn text-[11px] font-medium px-3 py-1.5 rounded-md transition-all">العقارات</button>
+          <button onclick="switchTab('training')" id="tab-training" class="tab-btn text-[11px] font-medium px-3 py-1.5 rounded-md transition-all">التدريب والبحوث</button>
+          <button onclick="switchTab('tech')" id="tab-tech" class="tab-btn text-[11px] font-medium px-3 py-1.5 rounded-md transition-all">الحلول والتكنولوجيا</button>
+          <button onclick="switchTab('accounting')" id="tab-accounting" class="tab-btn text-[11px] font-medium px-3 py-1.5 rounded-md transition-all">المحاسبية (مستقبلاً)</button>
+        </div>
+
+        <!-- OVERVIEW TAB CONTENT -->
+        <div id="tabpane-overview">
+          <p class="text-[10px] rounded-lg px-3 py-2 mb-5" style="color:#c99a3d; background:rgba(183,121,31,.08); border:1px solid rgba(183,121,31,.25);">
+            كل الأرقام أدناه [بانتظار الإدخال] — لا نسبة تغيير تُعرض إلا بعد إدخال رقم حقيقي، التزاماً بسياسة عدم اختلاق البيانات.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="panel rounded-xl p-4">
+              <p class="text-[11px] mb-2" style="color:var(--text-2);">إجمالي أصول المحفظة</p>
+              <p class="text-2xl font-bold font-num" style="color:var(--text-1);">—</p>
+              <p class="text-[10px] mt-1" style="color:var(--text-2);">[بانتظار الإدخال]</p>
+            </div>
+            <div class="panel rounded-xl p-4">
+              <p class="text-[11px] mb-2" style="color:var(--text-2);">نسبة إشغال العقارات</p>
+              <p class="text-2xl font-bold font-num" style="color:var(--text-1);">—</p>
+              <p class="text-[10px] mt-1" style="color:var(--text-2);">[بانتظار الإدخال]</p>
+            </div>
+            <div class="panel rounded-xl p-4">
+              <p class="text-[11px] mb-2" style="color:var(--text-2);">سرعة تطوير الحقائب AI</p>
+              <p class="text-2xl font-bold font-num" style="color:var(--text-1);">—</p>
+              <p class="text-[10px] mt-1" style="color:var(--text-2);">مسودات بانتظار الاعتماد</p>
+            </div>
+            <div class="panel rounded-xl p-4">
+              <p class="text-[11px] mb-2" style="color:var(--text-2);">نسبة أتمتة الأنظمة (ERP)</p>
+              <p class="text-2xl font-bold font-num" style="color:var(--text-1);">—</p>
+              <p class="text-[10px] mt-1" style="color:var(--text-2);">[بانتظار الإدخال]</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <!-- المهام العاجلة -->
+            <div class="panel rounded-xl p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-semibold flex items-center gap-2" style="color:var(--text-1);">
+                  <span class="w-1.5 h-1.5 rounded-full" style="background:var(--blue);"></span> قائمة المهام العاجلة
+                </h3>
+                <span class="text-[9px] font-num px-2 py-0.5 rounded-full" style="background:var(--bg-app); color:var(--text-2);">4 بنود</span>
+              </div>
+              <div class="space-y-2" data-list="tasks">
+                <div class="searchable rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);">
+                  <div class="flex justify-between items-start">
+                    <p class="text-[11px] font-medium" style="color:var(--text-1);">استفسار مورد MILLENSYS</p>
+                    <span class="text-[9px] px-1.5 py-0.5 rounded" style="background:rgba(41,98,255,.1); color:var(--blue); border:1px solid rgba(41,98,255,.25);">مفتوح</span>
+                  </div>
+                  <p class="text-[10px] mt-1" style="color:var(--text-2);">من السجل الرسمي للبنود المفتوحة</p>
+                </div>
+                <div class="searchable rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);">
+                  <div class="flex justify-between items-start">
+                    <p class="text-[11px] font-medium" style="color:var(--text-1);">توفير ملفات بنك/دفتر أستاذ حقيقية</p>
+                    <span class="text-[9px] px-1.5 py-0.5 rounded" style="background:rgba(41,98,255,.1); color:var(--blue); border:1px solid rgba(41,98,255,.25);">تقني</span>
+                  </div>
+                  <p class="text-[10px] mt-1" style="color:var(--text-2);">لازم لاختبار محرك التسوية مقابل عتبة الدقة 95%</p>
+                </div>
+                <div class="searchable rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);">
+                  <div class="flex justify-between items-start">
+                    <p class="text-[11px] font-medium" style="color:var(--text-1);">اعتماد DOC-20260817-TECH-001</p>
+                    <span class="text-[9px] px-1.5 py-0.5 rounded" style="background:rgba(41,98,255,.1); color:var(--blue); border:1px solid rgba(41,98,255,.25);">تقني</span>
+                  </div>
+                  <p class="text-[10px] mt-1" style="color:var(--text-2);">المعمارية الخماسية الطبقات (L1–L5)</p>
+                </div>
+                <div class="searchable rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid rgba(194,120,3,.3);">
+                  <div class="flex justify-between items-start">
+                    <p class="text-[11px] font-medium" style="color:var(--text-1);">تحديد نطاق تنفيذ DEC-2026-TRN-003</p>
+                    <span class="text-[9px] px-1.5 py-0.5 rounded" style="background:rgba(194,120,3,.12); color:#c98003; border:1px solid rgba(194,120,3,.3);">قيد حوكمي</span>
+                  </div>
+                  <p class="text-[10px] mt-1" style="color:var(--text-2);">مسودات فقط أم تنفيذ فعلي لحملات/مدفوعات؟</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- قرارات تنتظر الاعتماد -->
+            <div class="panel rounded-xl p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-semibold flex items-center gap-2" style="color:var(--text-1);">
+                  <span class="w-1.5 h-1.5 rounded-full" style="background:var(--red);"></span> قرارات تنتظر الاعتماد
+                </h3>
+                <span class="text-[9px] font-num px-2 py-0.5 rounded-full" style="background:var(--bg-app); color:var(--text-2);">3 قرارات</span>
+              </div>
+              <div class="space-y-2" data-list="decisions">
+                <div class="searchable rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid rgba(242,54,69,.3);">
+                  <p class="text-[11px] font-medium" style="color:var(--text-1);">حسم مسار حل أزمة السيولة 🔴 عاجل</p>
+                  <p class="text-[10px] mt-1" style="color:var(--text-2);">تسييل أصول / خفض مصروفات / إعادة هيكلة دين</p>
+                  <button onclick="switchMain('agents')" class="mt-2 text-[9px] px-2.5 py-1 rounded" style="background:rgba(41,98,255,.12); color:var(--blue);">فتح مع المستشار المالي</button>
+                </div>
+                <div class="searchable rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);">
+                  <p class="text-[11px] font-medium" style="color:var(--text-1);">اعتماد/تعديل مصفوفة الصلاحيات (SoA) وإطار KPI</p>
+                  <p class="text-[10px] mt-1" style="color:var(--text-2);">معلّق من جلسة سابقة</p>
+                </div>
+                <div class="searchable rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);">
+                  <p class="text-[11px] font-medium" style="color:var(--text-1);">فك تجميد موازنة InvestCo</p>
+                  <p class="text-[10px] mt-1" style="color:var(--text-2);">مرتبط بقرار السيولة أعلاه</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- سجل المستندات المعتمدة -->
+            <div class="panel rounded-xl p-4">
+              <h3 class="text-xs font-semibold flex items-center gap-2 mb-3" style="color:var(--text-1);">
+                <span class="w-1.5 h-1.5 rounded-full" style="background:var(--green);"></span> سجل المستندات والقرارات المعتمدة
+              </h3>
+              <div class="space-y-2" data-list="docs">
+                <div class="searchable rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);">
+                  <p class="text-[11px] font-medium" style="color:var(--text-1);">RES-001 → RES-018</p>
+                  <p class="text-[10px] mt-1" style="color:var(--text-2);">ميثاق مجلس الشخص الواحد + صفر التفويض</p>
+                </div>
+                <div class="searchable rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);">
+                  <p class="text-[11px] font-medium" style="color:var(--text-1);">DOC-20260817-TECH-001</p>
+                  <p class="text-[10px] mt-1" style="color:var(--text-2);">معمارية خماسية الطبقات</p>
+                </div>
+                <div class="searchable rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);">
+                  <p class="text-[11px] font-medium" style="color:var(--text-1);">DOC-20260817-OPS-001</p>
+                  <p class="text-[10px] mt-1" style="color:var(--text-2);">خطة الخدمات المشتركة</p>
+                </div>
+                <div class="searchable rounded-lg p-2.5" style="background:rgba(8,153,129,.06); border:1px solid rgba(8,153,129,.25);">
+                  <p class="text-[11px] font-medium" style="color:var(--text-1);">DEC-2026-TRN-001 ✅</p>
+                  <p class="text-[10px] mt-1" style="color:var(--text-2);">قسم المبيعات والتسعير</p>
+                </div>
+                <div class="searchable rounded-lg p-2.5" style="background:rgba(8,153,129,.06); border:1px solid rgba(8,153,129,.25);">
+                  <p class="text-[11px] font-medium" style="color:var(--text-1);">DEC-2026-TRN-002 ✅</p>
+                  <p class="text-[10px] mt-1" style="color:var(--text-2);">قسم الهوية البصرية</p>
+                </div>
+                <div class="searchable rounded-lg p-2.5" style="background:rgba(194,120,3,.06); border:1px solid rgba(194,120,3,.25);">
+                  <p class="text-[11px] font-medium" style="color:var(--text-1);">DEC-2026-TRN-003 ✅ (بقيد)</p>
+                  <p class="text-[10px] mt-1" style="color:var(--text-2);">قسم التسويق الإلكتروني — نطاق التنفيذ غير محسوم</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ARM TAB CONTENT (shared template) -->
+        <div id="tabpane-arm" class="hidden">
+          <div id="arm-banner" class="hidden rounded-xl p-5 mb-5" style="background:linear-gradient(90deg, rgba(41,98,255,.08), rgba(30,34,45,.4)); border:1px solid rgba(194,120,3,.3);">
+            <div class="flex justify-between items-center mb-3">
+              <div>
+                <h3 class="text-xs font-bold flex items-center gap-2" style="color:var(--text-1);">
+                  <span class="w-2 h-2 rounded-full" style="background:#c98003;"></span> خط إنتاج الحقائب بمساعدة الذكاء الاصطناعي
+                </h3>
+                <p class="text-[10px] mt-1" style="color:var(--text-2);">5 مراحل مسودة — لا تُعتمد كمنهج جاهز إلا بعد اعتمادك الصريح</p>
+              </div>
+              <span class="text-[9px] px-2.5 py-1 rounded-full" style="background:rgba(194,120,3,.12); color:#c98003; border:1px solid rgba(194,120,3,.3);">مسودة — بانتظار الاعتماد</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-2">
+              <div class="rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);"><p class="text-[9px] font-semibold" style="color:var(--blue);">مرحلة 1</p><p class="text-[10px] font-bold mt-1" style="color:var(--text-1);">الاستراتيجية والهوية</p></div>
+              <div class="rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);"><p class="text-[9px] font-semibold" style="color:var(--blue);">مرحلة 2</p><p class="text-[10px] font-bold mt-1" style="color:var(--text-1);">المادة العلمية</p></div>
+              <div class="rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);"><p class="text-[9px] font-semibold" style="color:var(--blue);">مرحلة 3</p><p class="text-[10px] font-bold mt-1" style="color:var(--text-1);">التحضير والأنشطة</p></div>
+              <div class="rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);"><p class="text-[9px] font-semibold" style="color:var(--blue);">مرحلة 4</p><p class="text-[10px] font-bold mt-1" style="color:var(--text-1);">الجدولة والتوقيت</p></div>
+              <div class="rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);"><p class="text-[9px] font-semibold" style="color:var(--blue);">مرحلة 5</p><p class="text-[10px] font-bold mt-1" style="color:var(--text-1);">مراجعة الجودة</p></div>
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <h3 class="text-[10px] font-semibold uppercase tracking-wider mb-3" style="color:var(--text-2);">الأقسام الإدارية والتشغيلية</h3>
+            <div id="arm-sections-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div class="panel rounded-xl p-4">
+              <h4 class="text-xs font-semibold mb-3" style="color:var(--text-1);">المؤشرات الخاصة بهذا الذراع</h4>
+              <div id="arm-kpis-list" class="space-y-2"></div>
+            </div>
+            <div class="panel rounded-xl p-4">
+              <h4 class="text-xs font-semibold mb-3" style="color:var(--text-1);">القرارات والطلبات المعلقة</h4>
+              <div id="arm-decision" class="space-y-2"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== VIEW: AI AGENTS ===================== -->
+      <section id="view-agents" class="hidden">
+        <div class="mb-5">
+          <h1 class="text-lg font-bold" style="color:var(--text-1);">وكلاء الذكاء الاصطناعي</h1>
+          <p class="text-[11px] mt-0.5" style="color:var(--text-2);">توصيات استشارية فقط — سقف التفويض صفر، بانتظار اعتمادك</p>
+        </div>
+
+        <p id="backendNotice" class="text-[10px] rounded-lg px-3 py-2 mb-5" style="color:#c98003; background:rgba(194,120,3,.08); border:1px solid rgba(194,120,3,.25);">
+          نقطة الربط الخارجية <span class="font-num" dir="ltr">holding-backend.onrender.com</span> حيّة لكن بلا API فعلي بعد لاستقبال التوصيات — الاتصال أدناه يعمل تلقائياً فقط داخل بيئة Claude.ai مباشرة.
+        </p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="panel rounded-xl p-4 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xs font-semibold mb-3" style="color:var(--text-1);">1. تحديد الوكيل المستهدف</h3>
+              <select id="agentSelect" class="w-full text-xs rounded-md p-2.5 mb-3 focus:outline-none" style="background:var(--bg-app); border:1px solid var(--border); color:var(--text-1);">
+                <option value="strategy">الوكيل الاستراتيجي والحوكمة</option>
+                <option value="cfo">المدير المالي للمجموعة</option>
+                <option value="coo">مدير العمليات والخدمات المشتركة</option>
+                <option value="cto">المهندس التقني والأنظمة</option>
+                <option value="curriculum">وكيل تطوير الحقائب والمناهج الذكية</option>
+                <option value="pricing">وكيل تحليل التكاليف والتسعير (DEC-TRN-001)</option>
+                <option value="brand">وكيل الهوية والتصميم المؤسسي (DEC-TRN-002)</option>
+                <option value="marketing">وكيل التسويق الرقمي واجتذاب المتدربين (DEC-TRN-003)</option>
+                <option value="audit">وكيل الرقابة وإصلاح الفجوات</option>
+              </select>
+              <h3 class="text-xs font-semibold mb-2" style="color:var(--text-1);">2. رصد الفجوة / توجيه القرار</h3>
+              <textarea id="commandInput" rows="6" placeholder="أكتب القرار أو الفجوة المراد معالجتها..."
+                class="w-full text-xs rounded-md p-2.5 focus:outline-none" style="background:var(--bg-app); border:1px solid var(--border); color:var(--text-1);"></textarea>
+            </div>
+            <button id="sendBtn" onclick="sendCommand()" class="w-full text-white text-xs font-semibold py-2.5 rounded-md mt-3 disabled:opacity-50" style="background:var(--blue);">إرسال للتحليل</button>
+            <p class="text-[9px] mt-2 leading-relaxed" style="color:var(--text-2);">مخرجات مسودة فقط — لا تُنفَّذ أو تُعتمد تلقائياً.</p>
+          </div>
+
+          <div class="lg:col-span-2 panel rounded-xl p-4">
+            <h3 class="text-xs font-semibold mb-3" style="color:var(--text-1);">مخرجات التحليل الاستشاري</h3>
+            <div id="outputConsole" class="rounded-lg p-3 h-[340px] overflow-y-auto scrollbar text-[11px] font-mono leading-relaxed"
+              style="background:var(--bg-app); border:1px solid var(--border); color:var(--text-1);">
+              [System Initialized]: بانتظار الأوامر...
+            </div>
+          </div>
+        </div>
+
+        <div class="panel rounded-xl p-4 mt-5">
+          <div class="flex justify-between items-center mb-1">
+            <h3 class="text-xs font-semibold" style="color:var(--text-1);">3. سجل القرارات المعلقة</h3>
+            <span id="pendingCount" class="text-[10px] font-num" style="color:var(--text-2);">0 عنصر</span>
+          </div>
+          <p class="text-[9px] mb-3" style="color:var(--text-2);">سجل محلي داخل الجلسة فقط — لا يرتبط بأي تنفيذ فعلي.</p>
+          <div id="pendingLog" class="space-y-2">
+            <p id="emptyState" class="text-xs text-center py-6" style="color:var(--text-2);">لا توجد توصيات بعد.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== VIEW: FINANCIAL RECONCILIATION ===================== -->
+      <section id="view-reconciliation" class="hidden">
+        <div class="mb-5">
+          <h1 class="text-lg font-bold" style="color:var(--text-1);">المطابقة المالية</h1>
+          <p class="text-[11px] mt-0.5" style="color:var(--text-2);">محرك التسوية البنكية — CODE-20260815-SYS-001</p>
+        </div>
+        <div class="panel rounded-xl p-6 text-center">
+          <p class="text-sm font-semibold mb-2" style="color:var(--text-1);">لم يُختبر بعد على بيانات حقيقية</p>
+          <p class="text-[11px] max-w-md mx-auto mb-4" style="color:var(--text-2);">
+            المحرك جاهز تقنياً (عتبة الدقة المستهدفة 95%، تشغيل موازٍ Parallel Run) لكنه بانتظار ملفات بنك/دفتر أستاذ حقيقية — بند مفتوح رقم 3 في السجل الرسمي.
+          </p>
+          <button onclick="switchMain('agents')" class="text-xs font-semibold px-4 py-2 rounded-md text-white" style="background:var(--blue);">مناقشة الموضوع مع CFO/CTO Agent</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+<script>
+// ===== التاريخ الديناميكي =====
+const arMonths = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+const now = new Date();
+document.getElementById('todayDate').textContent = `${now.getDate()} ${arMonths[now.getMonth()]} ${now.getFullYear()}`;
+
+// ===== إعداد نقاط الاتصال =====
+// نقطة الربط المستقبلية — مهيأة في الكود وغير مفعّلة بعد (لا تُستدعى ما لم تُضبط USE_EXTERNAL_AGENT على true).
+const EXTERNAL_BACKEND_URL = "https://holding-backend.onrender.com/api/agent";
+const USE_EXTERNAL_AGENT   = false;
+// مسار الخادم المرافق لهذه الصفحة (server.js في نفس المستودع) — يُجرَّب أولاً، ثم يعود الاتصال المباشر كخيار احتياطي.
+const SAME_ORIGIN_ENDPOINT = "/api/command";
+
+// ===== تبديل العروض الرئيسية (Rail) =====
+const MAIN_VIEWS = ['dashboard','agents','reconciliation'];
+
+function switchMain(view, skipHash){
+  if(MAIN_VIEWS.indexOf(view) === -1) view = 'dashboard';
+  MAIN_VIEWS.forEach(v=>{
+    document.getElementById('view-'+v).classList.toggle('hidden', v!==view);
+    const btn = document.getElementById('rail-'+v);
+    btn.classList.toggle('active', v===view);
+    btn.style.color = v===view ? '' : 'var(--text-2)';
+  });
+  if(!skipHash && location.hash !== '#/'+view) location.hash = '#/'+view;
+  window.scrollTo(0,0);
+}
+
+// توجيه بالـ Hash: #/dashboard | #/agents | #/reconciliation
+function routeFromHash(){
+  const view = (location.hash || '#/dashboard').replace('#/','') || 'dashboard';
+  switchMain(view, true);
+}
+window.addEventListener('hashchange', routeFromHash);
+window.addEventListener('DOMContentLoaded', routeFromHash);
+
+// ===== بيانات الأذرع =====
+const companiesData = {
+  realestate: {
+    title: "استثمار وإدارة الأملاك", subtitle: "إدارة المحافظ العقارية، التأجير، التحصيل، والصيانة",
+    sections: [
+      { title: "إدارة المحافظ وتنمية الأصول", desc: "دراسة الفرص الاستثمارية والاستحواذ." },
+      { title: "المؤجرين والعقود", desc: "إدارة العقود ومتابعة المتعثرين." },
+      { title: "الصيانة التشغيلية والمرافق", desc: "تكلفة الصيانة لكل متر." }
+    ],
+    kpis: [
+      { label: "معدل تحصيل الإيجارات", val: "—" },
+      { label: "متوسط تكلفة الصيانة/متر", val: "—" },
+      { label: "نسبة شاغري الوحدات", val: "—" }
+    ],
+    decision: "القرار المرتبط بمسار تسييل الأصول العقارية ضمن حل أزمة السيولة."
+  },
+  training: {
+    title: "التدريب والبحوث والأكاديمية", subtitle: "6 أقسام — جميع المخرجات مسودات بانتظار الاعتماد",
+    sections: [
+      { title: "تطوير الحقائب (بمساعدة AI) 🤖", desc: "مسودات عبر 5 مراحل — تتطلب اعتمادك." },
+      { title: "البحوث والدراسات", desc: "استشارات بحثية وتقارير استراتيجية." },
+      { title: "خدمات المتدربين والتسجيل", desc: "قياس الجودة والتسجيل." },
+      { title: "المبيعات والتسعير — DEC-TRN-001 ✅", desc: "مقترحات تسعير تتطلب اعتماد CFO/الرئيس." },
+      { title: "الهوية البصرية — DEC-TRN-002 ✅", desc: "دليل هوية مسودة يتطلب اعتماداً رسمياً." },
+      { title: "التسويق الإلكتروني — DEC-TRN-003 ✅ (بقيد)", desc: "خطط ومحتوى مقترح فقط — لا حملات مدفوعة فعلية دون قرار منفصل." }
+    ],
+    kpis: [
+      { label: "زمن إعداد مسودة الحقيبة", val: "—" },
+      { label: "مؤشر جودة المسودة (QA)", val: "—" },
+      { label: "هامش الربح المستهدف (مقترح)", val: "—" }
+    ],
+    decision: "اعتماد الأقسام الثلاثة الجديدة — مع تحديد نطاق تنفيذي أدق لبند الحملات المدفوعة في DEC-003."
+  },
+  tech: {
+    title: "الحلول والتكنولوجيا", subtitle: "التطوير البرمجي، أتمتة ERP، الحلول السحابية",
+    sections: [
+      { title: "الهندسة والحلول السحابية", desc: "إدارة السيرفرات والربط مع Claude/SAP." },
+      { title: "البرمجيات والأتمتة", desc: "أدوات التحكم الداخلي." },
+      { title: "الأمن السيبراني والحوكمة الرقمية", desc: "حماية البيانات والصلاحيات." },
+      { title: "الدعم والربط الفني", desc: "ربط المبيعات بالحسابات وZATCA." }
+    ],
+    kpis: [
+      { label: "نسبة استقرار الأنظمة السحابية", val: "—" },
+      { label: "عدد المشروعات المنجزة", val: "—" },
+      { label: "معدل أتمتة التدفقات المالية", val: "—" }
+    ],
+    decision: "اعتماد DOC-20260817-TECH-001 وتفعيل الوحدات الثلاث."
+  },
+  accounting: {
+    title: "الحلول المحاسبية والمراجعة (مستقبلاً)", subtitle: "استشارات، عمل بالساعات، VAT/ZATCA، خدمات كاملة",
+    sections: [
+      { title: "الاستشارات المحاسبية", desc: "توجيه محاسبي متخصص." },
+      { title: "العمل بالساعات", desc: "مساندة مرنة." },
+      { title: "ضريبة القيمة المضافة (VAT)", desc: "إقرارات وامتثال ZATCA." },
+      { title: "الخدمات المحاسبية الكاملة", desc: "إسناد وإقفال حسابات." }
+    ],
+    kpis: [
+      { label: "ساعات الاستشارات المنجزة", val: "—" },
+      { label: "نسبة الالتزام بالإقرارات", val: "—" }
+    ],
+    decision: "استكمال إجراءات الترخيص والجهوزية للإطلاق المستقبلي."
+  }
+};
+
+function switchTab(tabKey){
+  ['overview','realestate','training','tech','accounting'].forEach(k=>{
+    const btn = document.getElementById('tab-'+k);
+    if(btn) btn.classList.toggle('active', k===tabKey);
+  });
+  const overviewPane = document.getElementById('tabpane-overview');
+  const armPane = document.getElementById('tabpane-arm');
+  const titleEl = document.getElementById('dashTitle');
+  const subEl = document.getElementById('dashSubtitle');
+  const banner = document.getElementById('arm-banner');
+
+  if(tabKey === 'overview'){
+    overviewPane.classList.remove('hidden'); armPane.classList.add('hidden');
+    titleEl.textContent = "نظرة عامة"; subEl.textContent = "القرارات المفتوحة والمستندات المعتمدة عبر الأذرع الأربعة";
+    return;
+  }
+  overviewPane.classList.add('hidden'); armPane.classList.remove('hidden');
+  const d = companiesData[tabKey];
+  titleEl.textContent = d.title; subEl.textContent = d.subtitle;
+  banner.classList.toggle('hidden', tabKey !== 'training');
+
+  document.getElementById('arm-sections-grid').innerHTML = d.sections.map(s => `
+    <div class="panel rounded-lg p-3">
+      <p class="text-[11px] font-bold mb-1" style="color:var(--text-1);">${s.title}</p>
+      <p class="text-[10px] leading-relaxed" style="color:var(--text-2);">${s.desc}</p>
+    </div>`).join('');
+
+  document.getElementById('arm-kpis-list').innerHTML = d.kpis.map(k => `
+    <div class="flex justify-between items-center rounded-lg p-2.5" style="background:var(--bg-app); border:1px solid var(--border);">
+      <span class="text-[11px]" style="color:var(--text-2);">${k.label}</span>
+      <span class="text-xs font-bold font-num" style="color:var(--text-1);">${k.val}</span>
+    </div>`).join('');
+
+  document.getElementById('arm-decision').innerHTML = `
+    <div class="rounded-lg p-3" style="background:var(--bg-app); border:1px solid var(--border);">
+      <p class="text-[11px]" style="color:var(--text-1);">${d.decision}</p>
+      <button onclick="switchMain('agents')" class="mt-2 text-[9px] px-2.5 py-1 rounded" style="background:rgba(41,98,255,.12); color:var(--blue);">فتح مع المستشار المختص</button>
+    </div>`;
+}
+
+// ===== بحث سريع يُصفّي القوائم في نظرة عامة =====
+function filterLists(){
+  const q = document.getElementById('quickSearch').value.trim().toLowerCase();
+  document.querySelectorAll('.searchable').forEach(el=>{
+    el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ===== سياق لوحة الإشارات الموحدة =====
+const DASHBOARD_CONTEXT = `
+سياق لوحة الإشارات الموحدة المعتمدة (مرجعي — لا تفترض أرقاماً غير مذكورة هنا صراحة):
+1) القابضة: اعتماد الموازنات وتعيين القيادات.
+2) إدارة الأملاك والعقارات: نسبة الإشغال، التحصيل، تكلفة الصيانة.
+3) التدريب والبحوث: 6 أقسام تشمل الحقائب بمساعدة AI (5 مراحل مسودة)، والمبيعات/التسعير (DEC-TRN-001)، والهوية البصرية (DEC-TRN-002)، والتسويق الإلكتروني (DEC-TRN-003 — نطاق التنفيذ الفعلي لحملات مدفوعة/دفع حي غير محسوم بعد).
+4) الحلول والتكنولوجيا: إنجاز المشروعات، الاستقرار السحابي، الأتمتة.
+5) الحلول المحاسبية (مستقبلاً): قيد التأسيس.
+البند الحرج الحالي: أزمة سيولة — الدخل الوظيفي هو المصدر الوحيد، وموازنة الاستثمار مجمّدة.
+ملاحظة: خادم خارجي (holding-backend.onrender.com) حيّ لكن بلا API فعلي لاستقبال توصيات بعد — لا تفترض وجود اتصال خلفي غير مؤكد.
+ملاحظة إلزامية: أي "أتمتة" أو "إجراء تلقائي" يُقرأ دائماً كمقترح/مسودة تتطلب اعتماد الرئيس.`;
+
+const GOVERNANCE_CORE = `أنت أحد الوكلاء الاستشاريين ضمن نظام حوكمة "المجموعة القابضة"، وتخاطب مباشرة رئيس مجلس الإدارة (المالك الوحيد وصاحب القرار الوحيد).
+مبادئ ملزمة غير قابلة للتجاوز:
+- دورك استشاري/تحليلي بحت فقط. سقف التفويض = صفر. لا تُصدر أي تأكيد بأن إجراءً "تم تنفيذه" أو "تم اعتماده".
+- ممنوع اختلاق أي رقم أو نسبة أو تاريخ أو حالة اتصال غير مؤكدة. إن لم تتوفر بيانات فعلية اكتب: [بانتظار إدخال الرئيس].
+- افترض أن كل توصية تمر بمراجعة تقاطعية (وكيل الرقابة) قبل اعتمادها فعلياً.
+- أنهِ كل رد بثلاثة خيارات صريحة في سطر منفصل: ✅ اعتماد | ✏️ تعديل | ❌ رفض
+- الأسلوب: تنفيذي مباشر، نقاط أو جدول مختصر.
+${DASHBOARD_CONTEXT}`;
+
+const AGENT_PROMPTS = {
+  strategy: GOVERNANCE_CORE + `\n\nهويتك: الوكيل الاستراتيجي والحوكمة (CSO). فحص الاتساق الاستراتيجي عبر الأذرع ومطابقة أي طلب مع قرارات المجلس.`,
+  cfo: GOVERNANCE_CORE + `\n\nهويتك: المدير المالي للمجموعة (CFO). تحليل السيولة وتخصيص رأس المال ومراجعة مخرجات وكيل التسعير قبل اعتبارها قابلة للتطبيق.`,
+  coo: GOVERNANCE_CORE + `\n\nهويتك: مدير العمليات والخدمات المشتركة (COO). تشغيل نموذج الخدمات المشتركة بلا بنية تحتية أو توظيف جديد.`,
+  cto: GOVERNANCE_CORE + `\n\nهويتك: المهندس التقني وأنظمة المجموعة (CTO). حلول Python + Excel فقط، بلا تكلفة بنية تحتية جديدة. راجع أي طلب ربط بخادم خارجي (مثل holding-backend.onrender.com) بحذر ولا تفترض جاهزيته.`,
+  curriculum: GOVERNANCE_CORE + `\n\nهويتك: وكيل تطوير الحقائب والمناهج الذكية. كل مخرجاتك مسودة فقط.`,
+  pricing: GOVERNANCE_CORE + `\n\nهويتك: وكيل تحليل التكاليف والتسعير (DEC-2026-TRN-001). مقترح تسعير فقط، لا تطبيق فعلي إلا باعتماد CFO والرئيس.`,
+  brand: GOVERNANCE_CORE + `\n\nهويتك: وكيل الهوية والتصميم المؤسسي (DEC-2026-TRN-002). مسودة دليل هوية تتطلب اعتماداً رسمياً.`,
+  marketing: GOVERNANCE_CORE + `\n\nهويتك: وكيل التسويق الرقمي (DEC-2026-TRN-003). لا تؤكد أبداً إطلاق حملة مدفوعة فعلية أو ربط دفع حي — هذا خارج نطاق اعتمادك الحالي.`,
+  audit: GOVERNANCE_CORE + `\n\nهويتك: وكيل الرقابة وإصلاح الفجوات. اعرض التقرير بصيغة: الفجوة → الخطر → التوصية. راقب أي محاولة توسّع في DEC-2026-TRN-003 أو أي افتراض جاهزية للخادم الخارجي.`
+};
+
+let pendingCounter = 0;
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str; return d.innerHTML; }
+function formatOutput(text){
+  return escapeHtml(text).replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/(^|<br>)-\s/g,'$1• ');
+}
+
+async function sendCommand(){
+  const agentSelect = document.getElementById('agentSelect');
+  const agentKey = agentSelect.value;
+  const agentLabel = agentSelect.selectedOptions[0].text;
+  const commandInput = document.getElementById('commandInput');
+  const command = commandInput.value.trim();
+  const consoleBox = document.getElementById('outputConsole');
+  const sendBtn = document.getElementById('sendBtn');
+  if(!command) return;
+
+  const loadingId = 'loading-'+Date.now();
+  consoleBox.innerHTML += `<br><br><span style="color:var(--blue)">[توجيه إلى ${agentLabel}]:</span> ${escapeHtml(command)}`;
+  consoleBox.innerHTML += `<br><span id="${loadingId}" style="color:#c98003">[جارٍ التحليل...]</span>`;
+  consoleBox.scrollTop = consoleBox.scrollHeight;
+  commandInput.value = ''; sendBtn.disabled = true;
+
+  try{
+    const textBlocks = await callAgent(AGENT_PROMPTS[agentKey], command);
+    document.getElementById(loadingId)?.remove();
+    consoleBox.innerHTML += `<br><span style="color:var(--green)">[رد ${agentLabel}]:</span><br>${formatOutput(textBlocks)}`;
+    addPendingDecision(agentLabel, command, textBlocks);
+    consoleBox.scrollTop = consoleBox.scrollHeight;
+  } catch(err){
+    document.getElementById(loadingId)?.remove();
+    consoleBox.innerHTML += `<br><span style="color:var(--red)">[خطأ اتصال]:</span> ${escapeHtml(err.message)}`;
+    consoleBox.scrollTop = consoleBox.scrollHeight;
+  } finally { sendBtn.disabled = false; }
+}
+
+// يحاول خادم نفس النطاق أولاً (server.js)، ثم يعود إلى الاتصال المباشر.
+async function callAgent(systemPrompt, command){
+  const endpoint = USE_EXTERNAL_AGENT ? EXTERNAL_BACKEND_URL : SAME_ORIGIN_ENDPOINT;
+  try{
+    const r = await fetch(endpoint, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ agent:"وكيل حوكمة — البوابة التنفيذية", system: systemPrompt, command: command })
+    });
+    if(r.ok){
+      const d = await r.json();
+      if(d.output) return d.output;
+    }
+  } catch(e){ /* لا خادم متاح — تابع إلى الاتصال المباشر */ }
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ model:"claude-opus-5", max_tokens:4000, system: systemPrompt, messages:[{role:"user", content: command}] })
+  });
+  const data = await response.json();
+  if(data.error) throw new Error(data.error.message || 'تعذر الاتصال');
+  return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+}
+
+function addPendingDecision(agentLabel, command, response){
+  pendingCounter++;
+  document.getElementById('emptyState')?.remove();
+  const id = 'decision-'+pendingCounter;
+  const time = new Date().toLocaleString('ar-SA');
+  const card = document.createElement('div');
+  card.id = id;
+  card.className = 'rounded-lg p-3';
+  card.style.cssText = 'background:var(--bg-app); border:1px solid var(--border);';
+  card.innerHTML = `
+    <div class="flex justify-between items-start mb-1">
+      <span class="text-[11px] font-semibold" style="color:var(--blue)">${escapeHtml(agentLabel)}</span>
+      <span class="text-[9px]" style="color:var(--text-2)">${time}</span>
+    </div>
+    <p class="text-[11px] mb-2" style="color:var(--text-2)">${escapeHtml(command)}</p>
+    <p id="${id}-status" class="text-[11px] font-semibold mb-2" style="color:#c98003">بانتظار قرار الرئيس</p>
+    <div class="flex gap-2">
+      <button onclick="setDecisionStatus('${id}','معتمد ✅','var(--green)')" class="flex-1 rounded py-1 text-[10px]" style="background:rgba(8,153,129,.12); color:var(--green); border:1px solid rgba(8,153,129,.3);">اعتماد</button>
+      <button onclick="setDecisionStatus('${id}','بحاجة تعديل ✏️','#c98003')" class="flex-1 rounded py-1 text-[10px]" style="background:rgba(194,120,3,.12); color:#c98003; border:1px solid rgba(194,120,3,.3);">تعديل</button>
+      <button onclick="setDecisionStatus('${id}','مرفوض ❌','var(--red)')" class="flex-1 rounded py-1 text-[10px]" style="background:rgba(242,54,69,.1); color:var(--red); border:1px solid rgba(242,54,69,.3);">رفض</button>
+    </div>`;
+  document.getElementById('pendingLog').prepend(card);
+  document.getElementById('pendingCount').textContent = pendingCounter + ' عنصر';
+}
+function setDecisionStatus(id, label, color){
+  const el = document.getElementById(id+'-status');
+  el.textContent = label; el.style.color = color;
+}
+</script>
+</body>
+</html>
